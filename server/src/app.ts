@@ -2,9 +2,7 @@ import express from "express";
 import cors from "cors";
 import dataRoutes from "./routes/dataRoutes";
 
-
 const app = express();
-
 
 app.use(cors());
 app.use(express.json());

@@ -1,11 +1,12 @@
-// src/routes/dataRoutes.ts
 import { Router } from "express";
-import { getData, updateData } from "../controllers/dataController";
+import { getData, updateData, verifyData, recoverData } from "../controllers/dataController";
 
 const router = Router();
 
-// Rotas relacionadas aos dados
+// Data-related routes
 router.get("/", getData);
 router.post("/", updateData);
+router.get("/verify", verifyData);
+router.get("/recover", recoverData);
 
 export default router;
