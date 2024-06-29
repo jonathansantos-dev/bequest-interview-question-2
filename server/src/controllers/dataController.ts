@@ -5,7 +5,8 @@ import { generateToken, verifyToken } from "../utils/jwtUtil";
 // Controller to get data
 export const getData = (req: Request, res: Response) => {
   const data = getDataService();
-  res.json({ data });
+  const token = generateToken(data);
+  res.json({ data, token });
 };
 
 // Controller to update data
