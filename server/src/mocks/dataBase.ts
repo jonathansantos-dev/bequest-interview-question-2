@@ -1,26 +1,29 @@
-import bcrypt from 'bcrypt'
-// Mock data base
-const password = "firstkey123"
+import bcrypt from 'bcrypt';
 
-const getEncriptData = async (password: string) => {
-  // Generate the hash using bcrypt
-  const saltRounds = 10
-  const hashedPassword = await bcrypt.hash(password, saltRounds)  
-  return hashedPassword
-}
+// Banco de dados mockado em memória
+let database: { userEmail: string; password: string }[] = [];
 
-// Function to initialize database
+// Função para criptografar a senha
+const getEncriptData = async (password: string): Promise<string> => {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
+};
+
+// Função para inicializar o banco de dados
 const initializeDatabase = async () => {
-  const hashedPassword = await getEncriptData(password);
-
-  return [
+  const hashedPassword = await getEncriptData("firstkey123");
+  database = [
     {
       userEmail: "user@example.com",
-      password: hashedPassword  // bcrypt hash 
+      password: hashedPassword
     }
   ];
 };
 
+// Função para obter o banco de dados inicializado
 export const getInitializedDatabase = async () => {
-  return await initializeDatabase();
+  if (database.length === 0) {
+    await initializeDatabase();
+  }
+  return database;
 };

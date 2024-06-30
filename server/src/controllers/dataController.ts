@@ -1,28 +1,22 @@
 import { Request, Response } from "express";
-import { getDataService, updateDataService } from "../services/dataService";
-import { generateToken } from "../utils/jwtUtil";
-
-// Controller to get data
-export const getData = (req: Request, res: Response) => {
-  try {
-    console.log('getting data')
-    // const data = getDataService();
-    // const token = ''
-    // res.json({ data, token });
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
+import { updateUserService } from "../services/dataService";
 
 // Controller to update data
-export const updateData = (req: Request, res: Response) => {
+export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { data } = req.body;
-    updateDataService(data);
-    res.sendStatus(200);
+    const userEmail = req.params.userEmail;
+    const userRequestEmail = req.userEmail;
+
+    if (userEmail !== userRequestEmail) {
+      return res.status(403).json({ message: 'Ação não permitida! Usuários não coincidem.' });
+    }
+
+    const newData: { password?: string } = req.body;
+
+    const result = await updateUserService(userEmail, newData);
+
+    return res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-    throw error;
-  }  
+    return res.status(500).json({ message: 'Erro ao atualizar o usuário', error });
+  }
 };

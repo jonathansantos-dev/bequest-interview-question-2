@@ -18,11 +18,7 @@ export const authenticate = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({ error: 'user not found' });
     }
-
-    console.log('req:', {
-      password, 
-      user: user.userEmail
-    })
+    
     // Compare hashes
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {

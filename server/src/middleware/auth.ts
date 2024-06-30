@@ -9,7 +9,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction )
     return res.status(401).send({ error: 'Invalid token' })
     
     const [ scheme, token ] = parts
-    // regex que valida se a primeira palavra é 'Bearer'
+    // regex to validate if the first part is 'Bearer'
     if (!/^Bearer$/i.test(scheme))
       return res.status(401).send({ error: 'Invalid token format' })
   
@@ -17,10 +17,9 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction )
     return res.status(401).send({ error: 'Missing token' })
     
   try {
-    verifyToken(token)
-    res.status(200).json({
-      message: "Authenticated"
-    })
+    const { userEmail } = verifyToken(token)
+
+    req.userEmail = userEmail
   } catch (erorr) {
     res.status(401).json({
       message: "Invalid token"
