@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { getData, updateData, verifyData, recoverData } from "../controllers/dataController";
+import { getData, updateData } from "../controllers/dataController";
+import { authenticate } from "../controllers/authController";
+import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
 
-// Data-related routes
-router.get("/", getData);
-router.post("/", updateData);
-router.get("/verify", verifyData);
-router.get("/recover", recoverData);
+// router.get("/", authMiddleware, getData);
+// router.put("/", authMiddleware, updateData);
+router.post("/authenticate", authenticate);
 
 export default router;
