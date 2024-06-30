@@ -1,35 +1,55 @@
 import request from "supertest";
 import express from "express";
 import dataRoutes from "../../routes/dataRoutes"
+import { describe } from "node:test";
 
 const app = express();
 app.use(express.json());
-app.use("/data", dataRoutes);
+app.use("/", dataRoutes);
 
-describe("Data api", () => {
-  it("Should get data and token", async () => {
-    const response = await request(app).get("/data");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("data");
-    expect(response.body).toHaveProperty("token");
-  })
+const MOCK_USER = {
+  userEmail: 'user@example.com',
+  password: 'firstkey123'
+};
 
-  it("Should update data", async () => {
-    const newData = "New Data";
-    const response = await request(app).post("/data").send({ data: newData });
-    expect(response.status).toBe(200);
-  })
+let token: string = ''; 
 
-  it("Should verify data", async () => {
-    const response = await request(app).get("/data/verify");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("verified");
-  })
+describe("Routes integration tests", () => {
+  // Before start tests, make login to get a token
+  beforeEach(async () => {
+    const authResponse = await request(app)
+      .post('/authenticate')
+      .send(MOCK_USER);
 
-  it("Should recover data", async () => {
-    const response = await request(app).get("/data/recover");
+    token = authResponse.body.token; // Save the token 
+  });
+
+  it('Should authenticate with POST method', async () => {
+    const response = await request(app)
+      .post(`/authenticate`)
+      .send(MOCK_USER);
+
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("data");
-    expect(response.body).toHaveProperty("token");
-  })
-});
+    expect(response.body.token).toBeTruthy();
+  });
+
+  it('Should update user with PUT method', async () => {
+    const response = await request(app)
+      .put(`/${MOCK_USER.userEmail}`)
+      .send({ password: 'newPassword123' })
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('User updated with success!');
+  });
+
+  it('Should get error in authenticate', async () => {
+    // Now user is updated and don't have the same password
+    const errorResponse = await request(app)
+      .post('/authenticate')
+      .send(MOCK_USER);
+
+    expect(errorResponse.status).toBe(401); 
+    expect(errorResponse.body.error).toBe("Invalid password");
+  });
+})
