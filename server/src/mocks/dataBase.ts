@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 
+const INITIAL_PASSWORD = 'firstkey123'
+
 // Banco de dados mockado em memória
 let database: { userEmail: string; password: string }[] = [];
 
@@ -11,7 +13,7 @@ const getEncriptData = async (password: string): Promise<string> => {
 
 // Função para inicializar o banco de dados
 const initializeDatabase = async () => {
-  const hashedPassword = await getEncriptData("firstkey123");
+  const hashedPassword = await getEncriptData(INITIAL_PASSWORD);
   database = [
     {
       userEmail: "user@example.com",

@@ -2,36 +2,80 @@ import React, { useEffect, useState } from "react";
 
 const API_URL = "http://localhost:8080";
 
+interface Form {
+  userEmail: string,
+  password: string
+}
+
 function App() {
-  const [data, setData] = useState<string>();
+  const [token, setToken] = useState<string>("");
+  const [form, setForm] = useState<Form>({
+    userEmail: "",
+    password: ""
+  })
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    getData();
+    // initialize default database userData
+    setForm({
+      userEmail: "user@example.com",
+      password: "firstkey123"
+    })
   }, []);
 
-  const getData = async () => {
-    const response = await fetch(API_URL);
-    const { data } = await response.json();
-    setData(data);
-  };
+  useEffect(() => {
+    setError("")
+  }, [form]);
 
   const updateData = async () => {
-    await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ data }),
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
+    const { userEmail, password } = form
+    try {
+      const response = await fetch(`${API_URL}/${userEmail}`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ password })
+      });
 
-    await getData();
+      const { message } = await response.json()
+
+      if(response.ok) alert(message);
+    } catch (error) {
+      alert("Failed: data not updated");
+      console.log('error', error)
+    }    
   };
 
   const verifyData = async () => {
-    throw new Error("Not implemented");
+    setToken("")
+    try {
+      const response = await fetch(`${API_URL}/authenticate`, {
+        method: "post",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form)
+      });
+
+      const { token, error } = await response.json();
+      if (response.ok && token) {
+        setToken(token)
+        setError("")
+        alert("Logged in, now you can update!")
+      }
+      else if (error) setError(error)     
+
+    } catch (error) {
+      alert("Failed to verify data.");
+      console.log('erro')
+    }
   };
 
+  const { userEmail, password } = form
   return (
     <div
       style={{
@@ -48,15 +92,29 @@ function App() {
       }}
     >
       <div>Saved Data</div>
+      <label
+        style={{ fontSize: "18px" }}
+      >Email</label>
       <input
         style={{ fontSize: "30px" }}
         type="text"
-        value={data}
-        onChange={(e) => setData(e.target.value)}
+        value={userEmail}
+        onChange={(e) => setForm({ ...form, userEmail: e.target.value})}
+        />
+      <label
+        style={{ fontSize: "18px" }}
+      >Password</label>
+      <input
+        style={{ fontSize: "30px" }}
+        type="text"
+        value={password}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
-
+      {error && <div style={{ fontSize: "16px", color: "red" }}>{error}</div>}
       <div style={{ display: "flex", gap: "10px" }}>
-        <button style={{ fontSize: "20px" }} onClick={updateData}>
+        <button 
+          disabled={!token}
+          style={{ fontSize: "20px" }} onClick={updateData}>
           Update Data
         </button>
         <button style={{ fontSize: "20px" }} onClick={verifyData}>
