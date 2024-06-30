@@ -22,7 +22,7 @@ export const authenticate = async (req: Request, res: Response) => {
     // Compare hashes
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid password' });
+      return res.status(401).json({ error: 'Invalid password' });
     }
 
     // Generate token 
